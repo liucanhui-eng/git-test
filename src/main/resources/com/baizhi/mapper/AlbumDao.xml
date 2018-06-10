@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.AlbumDao">
+    <resultMap id="all" type="Album">
+        <id column="id1" property="id"></id>
+        <result column="title1" property="title"></result>
+        <result column="picPath1" property="picPath"></result>
+        <result column="score1" property="score"></result>
+        <result column="author1" property="author"></result>
+        <result column="announcer1" property="announcer"></result>
+        <result column="number1" property="number"></result>
+        <result column="ms1" property="ms"></result>
+        <result column="status1" property="status"></result>
+        <result column="upload_date1" property="uploadDate"></result>
+        <collection property="children" ofType="Audio">
+            <id column="id2" property="id"></id>
+            <result column="title2" property="title"></result>
+            <result column="size2" property="size"></result>
+            <result column="downPath2" property="downPath"></result>
+            <result column="albumId2" property="albumId"></result>
+            <result column="status2" property="status"></result>
+            <result column="duration2" property="duration"></result>
+            <result column="upload_date2" property="uploadDate"></result>
+        </collection>
+
+
+    </resultMap>
+
+
+
+
+
+
+    <!--    增加一个专辑   -->
+    <insert id="insert" parameterType="Album">
+        INSERT INTO album
+        VALUES (#{id}, #{title}, #{picPath},#{score} , #{author}, #{announcer}, #{number}, #{ms}, #{status}, #{uploadDate});
+    </insert>
+
+    <!--    删除/更新一个专辑   -->
+    <update id="updateStatus">
+        update album set status=#{status}
+        WHERE id=#{id}
+    </update>
+
+    <update id="updateNumber">
+        update album set number=#{number}
+        WHERE id=#{id}
+    </update>
+
+    <!--    查询专辑及其所对应的音频   -->
+    <select id="queryAll" resultMap="all">
+        select 	a1.id id1,a1.title title1,a1.picPath picPath1,a1.score score1,a1.author author1 ,
+        a1.announcer announcer1 ,a1.number number1 ,a1.ms ms1 ,a1.status status1, a1.upload_date upload_date1,
+
+        a2.id id2,a2.title title2,a2.size size2,a2.downPath downPath2,a2.albumId albumId2,a2.status status2 ,
+        a2.duration duration2,a2.upload_date upload_date2
+        from album a1 LEFT JOIN audio a2 ON a1.id=a2.albumId
+    </select>
+
+    <select id="queryByDate" resultMap="all">
+        select 	a1.id id1,a1.title title1,a1.picPath picPath1,a1.score score1,a1.author author1 ,
+                a1.announcer announcer1 ,a1.number number1 ,a1.ms ms1 ,a1.status status1, a1.upload_date upload_date1,
+
+                a2.id id2,a2.title title2,a2.size size2,a2.downPath downPath2,a2.albumId albumId2,a2.status status2 ,
+                a2.duration duration2,a2.upload_date upload_date2
+        from album a1 LEFT JOIN audio a2 ON a1.id=a2.albumId
+        ORDER BY  a1.upload_date desc
+        limit 0,6
+    </select>
+
+    <select id="queryById" resultMap="all">
+        select 	a1.id id1,a1.title title1,a1.picPath picPath1,a1.score score1,a1.author author1 ,
+        a1.announcer announcer1 ,a1.number number1 ,a1.ms ms1 ,a1.status status1, a1.upload_date upload_date1,
+
+        a2.id id2,a2.title title2,a2.size size2,a2.downPath downPath2,a2.albumId albumId2,a2.status status2 ,
+        a2.duration duration2,a2.upload_date upload_date2
+        from album a1 LEFT JOIN audio a2 ON a1.id=a2.albumId
+        WHERE a1.id=#{id}
+    </select>
+
+
+
+
+
+</mapper>
