@@ -39,7 +39,7 @@ public class UploadUtil {
 
         if(!f.exists()){
             System.out.println("===========");
-            f.mkdir();
+            f.mkdirs();
         }
 
         try {

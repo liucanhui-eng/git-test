@@ -8,11 +8,13 @@ spring:
     view:
       prefix: /
       suffix: .jsp
-#编码过滤
+#编码过滤  最大上传大小
   http:
     encoding:
       charset: UTF-8
       force: true
+    multipart:
+      max-file-size: 20
 #数据源
   datasource:
     username: root
@@ -23,7 +25,6 @@ spring:
 mybatis:
   mapper-locations: classpath:com/baizhi/mapper/*.xml
   type-aliases-package: com.baizhi.entity
-
 
 
 
