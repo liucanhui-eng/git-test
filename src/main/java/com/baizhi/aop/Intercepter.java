@@ -2,73 +2,64 @@ package com.baizhi.aop;
 
 import com.baizhi.annotation.LogAnnotation;
 import com.baizhi.dao.DemoLogDao;
+
 import com.baizhi.entity.Admin;
 import com.baizhi.entity.DemoLog;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-public class Intercepter implements MethodInterceptor {
+@Aspect
+@Configuration()
+public class Intercepter {
+    Logger logger= LoggerFactory.getLogger(Integer.class);
+
     @Autowired
     DemoLogDao dao;
+    //@Pointcut(value = "@annotation(com.baizhi.annotation.LogAnnotation)")
 
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-        System.out.println("===========开启日志======================");
-        Object result = null;
+    @Around(value = "@annotation(com.baizhi.annotation.LogAnnotation)")
+    public Object around(ProceedingJoinPoint proceedingJoinPoint){
+        logger.info("=================进入事务====================================");
 
+        Object proceed=null;
+        DemoLog log = new DemoLog();
 
+        //what?
+        MethodSignature signature = (MethodSignature) proceedingJoinPoint.getSignature();
+        Method method = signature.getMethod();
+        String what = method.getAnnotation(LogAnnotation.class).name();
         try {
-            //日志对象
-            DemoLog log = new DemoLog();
-
-            //什么时间？
-            log.setDate(new Date());
-
-
-
-            //干了啥？
-            Method method = invocation.getMethod();
-            LogAnnotation annotation = method.getAnnotation(LogAnnotation.class);
-            String operation = annotation.name();
-            log.setOperation(operation);
-
-            result = null;
-            try {
-                result = invocation.proceed();
-                //结果如何？
-                log.setResult("success");
-            } catch (Throwable throwable) {
-                //结果如何？
-                log.setResult("field");
-                //throwable.printStackTrace();
-            }
-
-            //谁？
-            ServletRequestAttributes servletRequestAttributes= (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            HttpServletRequest request = servletRequestAttributes.getRequest();
-            HttpSession session = request.getSession();
-            Object admin = session.getAttribute("admin");
-            if(admin!=null && admin instanceof Admin){
-                String name=((Admin)admin).getName();
-                log.setAdmin(name);
-            }
-//            log.setAdmin("小明");
-
-
-
-            dao.insert(log);
-        } catch (Exception e) {
-            e.printStackTrace();
+            proceed= proceedingJoinPoint.proceed();
+            log.setResult("成功");
+        } catch (Throwable throwable) {
+            log.setResult("失败");
+            throwable.printStackTrace();
         }
-        return result;
+        //who？;
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpSession session = requestAttributes.getRequest().getSession();
+        Admin admin = (Admin) session.getAttribute("admin");
+        String who=admin.getName();
+
+
+        log.setAdmin(who);
+        log.setDate(new Date());
+        log.setOperation(what);
+        dao.insert(log);
+        return proceed;
     }
+
+
 }

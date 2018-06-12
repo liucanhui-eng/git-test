@@ -3,8 +3,6 @@ package com.baizhi.service;
 import com.baizhi.annotation.LogAnnotation;
 import com.baizhi.dao.AdminDao;
 import com.baizhi.entity.Admin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -13,13 +11,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-
 @Service(value = "adminService")
 public class AdminServiceImpl implements AdminService {
     @Autowired
     AdminDao adminDao;
-    Logger logger= LoggerFactory.getLogger(AdminServiceImpl.class);
-
     @Override
     @LogAnnotation(name = "登陆操作")
     public Admin login(String name, String password)throws Exception {
@@ -33,9 +28,7 @@ public class AdminServiceImpl implements AdminService {
         HttpServletRequest request = servletRequestAttributes.getRequest();
         HttpSession session = request.getSession();
         session.setAttribute("admin",admin);
-
-        logger.info("登陆成功"+session.getAttribute("admin"));
-        //System.out.println();
+        System.out.println("登陆成功"+session.getAttribute("admin"));
         return admin;
     }
 
